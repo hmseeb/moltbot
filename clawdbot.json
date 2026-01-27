@@ -1,0 +1,42 @@
+{
+  "gateway": {
+    "mode": "local",
+    "bind": "lan",
+    "trustedProxies": ["100.64.0.0/10", "10.0.0.0/8"],
+    "auth": {
+      "token": "railway-clawdbot-token-2026"
+    }
+  },
+  "agents": {
+    "defaults": {
+      "workspace": "/home/node/data/clawd",
+      "model": {
+        "primary": "anthropic/claude-sonnet-4-20250514",
+        "fallback": "anthropic/claude-sonnet-4-20250514"
+      },
+      "forceModel": true
+    },
+    "main": {
+      "model": {
+        "primary": "anthropic/claude-sonnet-4-20250514"
+      }
+    }
+  },
+  "skills": {
+    "install": {
+      "preferBrew": true,
+      "nodeManager": "pnpm"
+    }
+  },
+  "env": {
+    "ANTHROPIC_API_KEY": "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"
+  },
+  "channels": {
+    "telegram": {
+      "enabled": true,
+      "botToken": "8019413816:AAGXsG9MXOcfYrrnWsXY5IQKnsfIHvESJTA",
+      "dmPolicy": "open",
+      "allowFrom": ["*"]
+    }
+  }
+}
