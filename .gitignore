@@ -4,7 +4,6 @@ node_modules
 docker-compose.extra.yml
 dist
 *.bun-build
-pnpm-lock.yaml
 bun.lock
 bun.lockb
 coverage
@@ -65,8 +64,8 @@ apps/ios/*.mobileprovision
 # Local untracked files
 .local/
 .vscode/
-IDENTITY.md
-USER.md
+/IDENTITY.md
+/USER.md
 .tgz
 
 # local tooling

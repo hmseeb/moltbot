@@ -1,6 +1,9 @@
 FROM node:22-bookworm AS base
 
-# Install Bun (required for build scripts) - v4 homebrew perms fix
+# Cache bust: v6-chromium-deps-2026-01-30
+RUN echo "v6-chromium" > /etc/build-version
+
+# Install Bun (required for build scripts) - v5 chromium deps
 RUN echo "Build: $(date +%s)" && curl -fsSL https://bun.sh/install | bash
 ENV PATH="/root/.bun/bin:${PATH}"
 
@@ -24,6 +27,36 @@ ENV HOMEBREW_NO_AUTO_UPDATE=1
 RUN corepack enable
 
 WORKDIR /app
+
+# Install Chrome/Puppeteer dependencies
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+      chromium \
+      libnss3 \
+      libnspr4 \
+      libatk1.0-0 \
+      libatk-bridge2.0-0 \
+      libcups2 \
+      libdrm2 \
+      libdbus-1-3 \
+      libxkbcommon0 \
+      libx11-6 \
+      libxcomposite1 \
+      libxdamage1 \
+      libxext6 \
+      libxfixes3 \
+      libxrandr2 \
+      libgbm1 \
+      libpango-1.0-0 \
+      libcairo2 \
+      libasound2 \
+      fonts-liberation && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*
+
+# Environment for Puppeteer to use system Chromium
+ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
+ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
 ARG CLAWDBOT_DOCKER_APT_PACKAGES=""
 RUN if [ -n "$CLAWDBOT_DOCKER_APT_PACKAGES" ]; then \

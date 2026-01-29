@@ -1,0 +1,53 @@
+name: Sync Fork from Upstream
+
+on:
+  schedule:
+    # Runs daily at 6:00 AM UTC
+    - cron: '0 6 * * *'
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout fork
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream https://github.com/clawdbot/clawdbot.git || true
+          git fetch upstream
+
+      - name: Check for updates
+        id: check
+        run: |
+          git fetch upstream main
+          BEHIND=$(git rev-list --count HEAD..upstream/main)
+          echo "behind=$BEHIND" >> $GITHUB_OUTPUT
+          if [ "$BEHIND" -gt 0 ]; then
+            echo "updates=true" >> $GITHUB_OUTPUT
+            echo "Found $BEHIND new commits from upstream"
+          else
+            echo "updates=false" >> $GITHUB_OUTPUT
+            echo "Already up to date"
+          fi
+
+      - name: Merge upstream changes
+        if: steps.check.outputs.updates == 'true'
+        run: |
+          git merge upstream/main --no-edit -m "Sync with upstream clawdbot/clawdbot"
+
+      - name: Push to fork
+        if: steps.check.outputs.updates == 'true'
+        run: |
+          git push origin main
