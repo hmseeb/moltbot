@@ -11,7 +11,7 @@
     "defaults": {
       "workspace": "/home/node/data/clawd",
       "model": {
-        "primary": "anthropic/claude-opus-4-5-20251101"
+        "primary": "anthropic/claude-opus-4-5"
       }
     }
   },
