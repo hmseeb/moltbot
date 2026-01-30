@@ -96,8 +96,26 @@ ENV HOME=/home/node
 # Set npm cache to use volume for skill installations
 ENV npm_config_cache=/home/node/data/.npm
 
-# Create entrypoint script with proper Unix line endings - v3 with lock cleanup
-RUN printf '#!/bin/bash\nif [ -d /home/node/data ]; then chown -R node:node /home/node/data; fi\nmkdir -p /home/node/data/.pnpm-global && chown node:node /home/node/data/.pnpm-global\nchown -R node:node /home/linuxbrew/.linuxbrew 2>/dev/null || true\nif [ -d /home/node/data/agents ]; then find /home/node/data/agents -name "*.lock" -type f -delete 2>/dev/null && echo "Cleaned up stale session lock files"; fi\nexec gosu node node dist/index.js gateway --bind lan --port ${PORT:-18789}\n' > /entrypoint.sh && chmod +x /entrypoint.sh
+# Create entrypoint script with proper Unix line endings - v4 with /data volume support
+RUN printf '#!/bin/bash\n\
+# Fix permissions for /home/node/data\n\
+if [ -d /home/node/data ]; then chown -R node:node /home/node/data; fi\n\
+mkdir -p /home/node/data/.pnpm-global && chown node:node /home/node/data/.pnpm-global\n\
+\n\
+# Fix permissions for /data (Railway default volume mount)\n\
+if [ -d /data ]; then\n\
+  chown -R node:node /data\n\
+  mkdir -p /data/.clawdbot && chown node:node /data/.clawdbot\n\
+  export CLAWDBOT_STATE_DIR=/data\n\
+fi\n\
+\n\
+chown -R node:node /home/linuxbrew/.linuxbrew 2>/dev/null || true\n\
+\n\
+# Cleanup stale locks\n\
+if [ -d /home/node/data/agents ]; then find /home/node/data/agents -name "*.lock" -type f -delete 2>/dev/null && echo "Cleaned up stale session lock files"; fi\n\
+if [ -d /data/agents ]; then find /data/agents -name "*.lock" -type f -delete 2>/dev/null && echo "Cleaned up stale session lock files"; fi\n\
+\n\
+exec gosu node node dist/index.js gateway --bind lan --port ${PORT:-18789}\n' > /entrypoint.sh && chmod +x /entrypoint.sh
 
 # Run entrypoint as root (it will switch to node user after fixing permissions)
 CMD ["/entrypoint.sh"]
