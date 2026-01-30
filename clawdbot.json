@@ -12,6 +12,10 @@
       "workspace": "/home/node/data/clawd",
       "model": {
         "primary": "anthropic/claude-opus-4-5"
+      },
+      "models": {
+        "anthropic/claude-opus-4-5": { "alias": "Opus 4.5" },
+        "anthropic/claude-sonnet-4-5": { "alias": "Sonnet 4.5" }
       }
     }
   },
