@@ -58,17 +58,19 @@ RUN apt-get update && \
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true
 ENV PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
 
-# Install Python Flask for dashboard skill
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-      python3-pip && \
-    pip3 install --break-system-packages flask flask-cors && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
-
 ARG CLAWDBOT_DOCKER_APT_PACKAGES=""
 RUN if [ -n "$CLAWDBOT_DOCKER_APT_PACKAGES" ]; then \
       apt-get update && \
       DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends $CLAWDBOT_DOCKER_APT_PACKAGES && \
+      apt-get clean && \
+      rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*; \
+    fi
+
+ARG CLAWDBOT_DOCKER_PIP_PACKAGES=""
+RUN if [ -n "$CLAWDBOT_DOCKER_PIP_PACKAGES" ]; then \
+      apt-get update && \
+      DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends python3-pip && \
+      pip3 install --break-system-packages $CLAWDBOT_DOCKER_PIP_PACKAGES && \
       apt-get clean && \
       rm -rf /var/lib/apt/lists/* /var/cache/apt/archives/*; \
     fi
