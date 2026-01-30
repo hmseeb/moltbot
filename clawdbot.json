@@ -48,5 +48,12 @@
       "dmPolicy": "open",
       "allowFrom": ["*"]
     }
+  },
+  "plugins": {
+    "entries": {
+      "telegram": {
+        "enabled": true
+      }
+    }
   }
 }
