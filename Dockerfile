@@ -96,7 +96,7 @@ ENV HOME=/home/node
 # Set npm cache to use volume for skill installations
 ENV npm_config_cache=/home/node/data/.npm
 
-# Create entrypoint script with proper Unix line endings - v4 with /data volume support
+# Create entrypoint script with proper Unix line endings - v5 with telegram offset cleanup
 RUN printf '#!/bin/bash\n\
 # Fix permissions for /home/node/data\n\
 if [ -d /home/node/data ]; then chown -R node:node /home/node/data; fi\n\
@@ -114,6 +114,14 @@ chown -R node:node /home/linuxbrew/.linuxbrew 2>/dev/null || true\n\
 # Cleanup stale locks\n\
 if [ -d /home/node/data/agents ]; then find /home/node/data/agents -name "*.lock" -type f -delete 2>/dev/null && echo "Cleaned up stale session lock files"; fi\n\
 if [ -d /data/agents ]; then find /data/agents -name "*.lock" -type f -delete 2>/dev/null && echo "Cleaned up stale session lock files"; fi\n\
+\n\
+# Clear telegram update offsets if TELEGRAM_RESET_OFFSET is set (helps with token changes)\n\
+if [ -n "$TELEGRAM_RESET_OFFSET" ]; then\n\
+  echo "TELEGRAM_RESET_OFFSET set - clearing stale telegram update offsets..."\n\
+  rm -f /home/node/data/telegram/update-offset-*.json 2>/dev/null\n\
+  rm -f /data/telegram/update-offset-*.json 2>/dev/null\n\
+  echo "Telegram update offsets cleared"\n\
+fi\n\
 \n\
 exec gosu node node dist/index.js gateway --bind lan --port ${PORT:-18789}\n' > /entrypoint.sh && chmod +x /entrypoint.sh
 
