@@ -3,9 +3,7 @@
     "mode": "local",
     "bind": "lan",
     "trustedProxies": ["100.64.0.0/10", "10.0.0.0/8"],
-    "auth": {
-      "token": "railway-clawdbot-token-2026"
-    }
+    "auth": {}
   },
   "agents": {
     "defaults": {
